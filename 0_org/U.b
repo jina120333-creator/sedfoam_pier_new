@@ -22,19 +22,31 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    inletWater
-    {
-        //type            fixedValue;
-        //value           uniform (0.1 0 0);
+    inletWaterLower
+     {
+         type            uniformFixedValue;
+         uniformValue    table
+         (
+             (0.0   (0      0 0))
+            (0.1   (0.012  0 0))
+             (3.0   (0.025  0 0))
+             (5.0   (0.04   0 0))
+            (10.0  (0.06   0 0))
+         );
+     }
+     inletWaterUpper
+     {
         type            uniformFixedValue;
         uniformValue    table
         (
-             (0.0     (0      0 0))
-             (0.5     (0.025 0 0))
-             (1.0     (0.05  0 0))
-             (100     (0.1  0 0))
-        );
-    }
+             (0.0   (0      0 0))
+             (0.1   (0.05   0 0))
+             (3.0   (0.10   0 0))
+             (5.0   (0.15   0 0))
+             (10.0  (0.233  0 0))
+          );
+        }
+ 
     inletSediment
     {
         type            fixedValue;
