@@ -29,10 +29,10 @@ boundaryField
         type            uniformFixedValue;
         uniformValue    table
         (
-             (0.0     (0      0 0))
-             (0.5     (0.025 0 0))
-             (1.0     (0.05  0 0))
-             (100     (0.1  0 0))
+             (0.0     (0     0 0))
+             (1.0     (0.1   0 0))
+             (3.0     (0.233 0 0))
+             (10000   (0.233 0 0))
         );
     }
     inletSediment
