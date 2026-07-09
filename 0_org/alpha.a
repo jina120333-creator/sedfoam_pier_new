@@ -29,8 +29,9 @@ boundaryField
     }
     inletSediment
     {
-        type            fixedValue;
-        value           uniform 0;
+        //type            fixedValue;
+        //value           uniform 0;
+        type            zeroGradient;
     }
     outletWater
     {
