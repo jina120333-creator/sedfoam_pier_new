@@ -16,58 +16,85 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+// Rigid approach section: the erodible bed now starts at x = -0.6 instead of
+// the inlet (x = -0.8). For -0.8 < x < -0.6 the floor is a rigid wall at
+// z = 0, flush with the initial bed surface (false floor, as in a flume).
+// This removes the leading-edge erosion/over-compaction artifact at the
+// sediment inlet. The rigid floor faces belong to the 'bottom' wall patch,
+// so no 0_org boundary condition changes are needed.
+
 convertToMeters 1;
 
 vertices
 (
-    // z = -0.06
-    (-0.8 -0.125 -0.06)  // 0
+    // z = -0.06 (only under the erodible bed, x >= -0.6)
+    (-0.6 -0.125 -0.06)  // 0
     ( 0.6 -0.125 -0.06)  // 1
     ( 0.6  0.125 -0.06)  // 2
-    (-0.8  0.125 -0.06)  // 3
+    (-0.6  0.125 -0.06)  // 3
 
-    // z = 0.00
+    // z = 0.00 (rigid floor upstream / initial bed surface downstream)
     (-0.8 -0.125  0.00)  // 4
-    ( 0.6 -0.125  0.00)  // 5
-    ( 0.6  0.125  0.00)  // 6
-    (-0.8  0.125  0.00)  // 7
+    (-0.6 -0.125  0.00)  // 5
+    ( 0.6 -0.125  0.00)  // 6
+    ( 0.6  0.125  0.00)  // 7
+    (-0.6  0.125  0.00)  // 8
+    (-0.8  0.125  0.00)  // 9
 
     // z = 0.03
-    (-0.8 -0.125  0.03)  // 8
-    ( 0.6 -0.125  0.03)  // 9
-    ( 0.6  0.125  0.03)  // 10
-    (-0.8  0.125  0.03)  // 11
+    (-0.8 -0.125  0.03)  // 10
+    (-0.6 -0.125  0.03)  // 11
+    ( 0.6 -0.125  0.03)  // 12
+    ( 0.6  0.125  0.03)  // 13
+    (-0.6  0.125  0.03)  // 14
+    (-0.8  0.125  0.03)  // 15
 
     // z = 0.05
-    (-0.8 -0.125  0.05)  // 12
-    ( 0.6 -0.125  0.05)  // 13
-    ( 0.6  0.125  0.05)  // 14
-    (-0.8  0.125  0.05)  // 15
+    (-0.8 -0.125  0.05)  // 16
+    (-0.6 -0.125  0.05)  // 17
+    ( 0.6 -0.125  0.05)  // 18
+    ( 0.6  0.125  0.05)  // 19
+    (-0.6  0.125  0.05)  // 20
+    (-0.8  0.125  0.05)  // 21
 );
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7)
-    (140 25 12)
+    // Erodible bed, x in [-0.6, 0.6] (dx = 0.01 m as before)
+    hex (0 1 2 3 5 6 7 8)
+    (120 25 12)
     simpleGrading (1 1 0.2)
-    
-    hex (4 5 6 7 8 9 10 11)
-    (140 25 12)
-    simpleGrading (1 1 5) //5
 
-    hex (8 9 10 11 12 13 14 15)
-    (140 25 5)
+    // Lower water column over the rigid approach, x in [-0.8, -0.6]
+    hex (4 5 8 9 10 11 14 15)
+    (20 25 12)
+    simpleGrading (1 1 5)
+
+    // Lower water column over the erodible bed
+    hex (5 6 7 8 11 12 13 14)
+    (120 25 12)
+    simpleGrading (1 1 5)
+
+    // Upper water column over the rigid approach
+    hex (10 11 14 15 16 17 20 21)
+    (20 25 5)
+    simpleGrading (1 1 1)
+
+    // Upper water column over the erodible bed
+    hex (11 12 13 14 17 18 19 20)
+    (120 25 5)
     simpleGrading (1 1 1)
 );
 
 boundary
 (
+    // Buried upstream end of the sand pit (vertical face at x = -0.6, z < 0)
     inletSediment
     {
         type patch;
         faces
         (
-            (0 4 7 3)  
+            (0 5 8 3)
         );
     }
 
@@ -76,7 +103,7 @@ boundary
         type patch;
         faces
         (
-            (4 8 11 7)
+            (4 10 15 9)
         );
     }
 
@@ -85,7 +112,7 @@ boundary
         type patch;
         faces
         (
-            (8 12 15 11)
+            (10 16 21 15)
         );
     }
 
@@ -94,7 +121,7 @@ boundary
         type patch;
         faces
         (
-            (1 2 6 5)      
+            (1 2 7 6)
         );
     }
 
@@ -103,8 +130,8 @@ boundary
         type patch;
         faces
         (
-            (5 6 10 9)
-            (9 10 14 13)   
+            (6 7 13 12)
+            (12 13 19 18)
         );
     }
 
@@ -114,14 +141,18 @@ boundary
         faces
         (
             // y = -0.125
-            (0 1 5 4)
-            (4 5 9 8)
-            (8 9 13 12)
+            (0 1 6 5)
+            (4 5 11 10)
+            (5 6 12 11)
+            (10 11 17 16)
+            (11 12 18 17)
 
             // y = 0.125
-            (3 7 6 2)
-            (7 11 10 6)
-            (11 15 14 10)
+            (3 8 7 2)
+            (9 15 14 8)
+            (8 14 13 7)
+            (15 21 20 14)
+            (14 20 19 13)
         );
     }
 
@@ -130,7 +161,8 @@ boundary
         type wall;
         faces
         (
-            (0 3 2 1)
+            (0 3 2 1)   // z = -0.06 under the erodible bed
+            (4 9 8 5)   // z =  0.00 rigid approach floor
         );
     }
 
@@ -139,7 +171,8 @@ boundary
         type wall;
         faces
         (
-            (12 13 14 15)
+            (16 17 20 21)
+            (17 18 19 20)
         );
     }
 );
