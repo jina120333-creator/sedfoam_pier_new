@@ -21,7 +21,10 @@ granularDilatancy  off;
 
 granularCohesion  off;
 
-alphaMaxG       alphaMaxG [ 0 0 0 0 0 0 0 ] 0.61;
+// Maximum packing of the mu(I) rheology: must not be below the packing the
+// bed actually reaches (JJ alphaMax = 0.635), otherwise the Boyer viscosity
+// and shear-induced pressure operate past their singularity.
+alphaMaxG       alphaMaxG [ 0 0 0 0 0 0 0 ] 0.635;
 
 mus             mus  [ 0 0 0 0 0 0 0 ] 0.35;
 
